@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>실시간 코인 시세</title>
+</head>
+<body>
+<h2>실시간 코인 시세</h2>
+<pre id="raw"></pre>
+<div id="btc"></div>
+<div id="eth"></div>
+
+<script>
+    const socket = new WebSocket("ws://192.168.56.12:8080/ws/ticker");
+
+    socket.onopen = () => console.log("✅ browser connected");
+
+    socket.onmessage = (event) => {
+        // 업비트 원본 JSON
+        document.getElementById("raw").textContent = event.data;
+
+        const data = JSON.parse(event.data);  // 서버에서 브로드캐스트한 업비트 ticker
+
+        if (data.code === "KRW-BTC") {
+            document.getElementById("btc").innerHTML =
+                `<h3>BTC</h3>
+                 <p>현재가: ${data.trade_price.toLocaleString()} KRW</p>
+                 <p>변화: ${data.change} (${(data.change_rate * 100).toFixed(2)}%)</p>`;
+        }
+
+        if (data.code === "KRW-ETH") {
+            document.getElementById("eth").innerHTML =
+                `<h3>ETH</h3>
+                 <p>현재가: ${data.trade_price.toLocaleString()} KRW</p>
+                 <p>변화: ${data.change} (${(data.change_rate * 100).toFixed(2)}%)</p>`;
+        }
+    };
+
+    socket.onerror = (e) => console.error("❌ ws error", e);
+    socket.onclose = () => console.log("❌ ws closed");
+</script>
+</body>
+</html>

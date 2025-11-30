@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: websocket-test
+
+  jmx:
+    enabled: false
+
+  kafka:
+    # docker-compose 안에서 kafka 컨테이너 이름이 'kafka'라고 가정
+    bootstrap-servers: kafka:9092
+    consumer:
+      # 각 인스턴스마다 다른 group-id 사용 (INSTANCE_ID는 docker-compose에서 넘겨줌)
+      group-id: upbit-ticker-${INSTANCE_ID:default}
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+app:
+  kafka:
+    topic: ${APP_KAFKA_TOPIC:upbit-ticker}
+    consumer-enabled: true   # 기본은 "consume 한다"
+  upbit:
+    collector-enabled: ${APP_UPBIT_COLLECTOR_ENABLED:false}
+
